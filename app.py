@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+import plotly.express as px
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
@@ -20,6 +21,7 @@ st.markdown(
 
 # --- Cargar archivo CSV ---
 archivo = st.file_uploader("Sube un archivo CSV con tus datos", type=["csv"])
+
 if archivo is None:
     df = pd.read_csv("analisis.csv")
     st.info("Usando el archivo por defecto: **analisis.csv**")
@@ -29,7 +31,7 @@ else:
 
 # --- Vista previa de los datos ---
 st.subheader("Vista previa de los datos")
-st.dataframe(df.head())
+st.dataframe(df.head(10))
 
 # --- Selección de columnas numéricas y parámetros ---
 num_cols = df.select_dtypes(include=["number"]).columns.tolist()
@@ -58,12 +60,11 @@ X_pca = pca.fit_transform(X_scaled)
 
 # --- Distribución original (antes de K-Means) ---
 st.subheader("Distribución original (antes de K-Means)")
-fig1, ax1 = plt.subplots(figsize=(8, 6))
-ax1.scatter(X_pca[:, 0], X_pca[:, 1], c="gray", alpha=0.7)
-ax1.set_xlabel("PCA1")
-ax1.set_ylabel("PCA2")
-ax1.set_title("Datos originales proyectados con PCA (sin agrupar)")
-st.pyplot(fig1)
+fig1 = px.scatter(
+    x=X_pca[:, 0], y=X_pca[:, 1], color_discrete_sequence=["gray"],
+    labels={"x": "PCA1", "y": "PCA2"}, title="Datos originales proyectados con PCA (sin agrupar)"
+)
+st.plotly_chart(fig1)
 
 # --- K-Means (modelo final) ---
 kmeans = KMeans(n_clusters=k, init=init, n_init=n_init, max_iter=max_iter, random_state=random_state)
@@ -73,12 +74,13 @@ kmeans.fit(X_scaled)
 labels = kmeans.labels_
 
 st.subheader(f"Datos agrupados con K-Means (k = {k})")
-fig2, ax2 = plt.subplots(figsize=(8, 6))
-scatter = ax2.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis')
-ax2.set_xlabel("PCA1")
-ax2.set_ylabel("PCA2")
-ax2.set_title(f"Clústeres visualizados en {visual_pca}D con PCA")
-st.pyplot(fig2)
+fig2 = px.scatter(
+    x=X_pca[:, 0], y=X_pca[:, 1], color=labels.astype(str), 
+    color_discrete_sequence=px.colors.qualitative.Set1,
+    labels={"x": "PCA1", "y": "PCA2"},
+    title=f"Clústeres visualizados en {visual_pca}D con PCA"
+)
+st.plotly_chart(fig2)
 
 # --- Centroides de los clústeres ---
 cent_scaled = kmeans.cluster_centers_
