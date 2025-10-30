@@ -10,8 +10,8 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 st.set_page_config(page_title="Clustering con K-Means", page_icon="🧩", layout="wide")
-st.title("Clustering Interactivo con K-Means y PCA (Comparación Antes/Después)")
-st.subheader("By Axel Mireles ITC")
+st.title("Clustering Interactivo con K-Means y PCA")
+st.subheader("Axel Mireles #739047")
 
 st.markdown(
     "Sube tus datos, aplica **K-Means**, observa cómo el algoritmo agrupa los puntos en un espacio reducido con PCA (2D o 3D). "
