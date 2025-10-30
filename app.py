@@ -1,4 +1,4 @@
-# app.py — K-Means con PCA y comparación (antes/después)
+# app.py — K-Means con PCA y comparación (antes/después) Streamlit
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,24 +8,29 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-# --- Título ---
-st.set_page_config(page_title="Clustering Interactivo", page_icon="🧩", layout="wide")
-st.title("Clustering Interactivo con K-Means y PCA (comparación Antes/después)")
+# --- Configuración de página ---
+st.set_page_config(page_title="Clustering con K-Means", page_icon="🧩", layout="wide")
+st.title("Clustering Interactivo con K-Means y PCA (Comparación Antes/Después)")
+st.subheader("By Axel Mireles ITC")
 
 st.markdown(
-    "Sube tus datos, aplica **K-Means**, observa cómo el algoritmo agrupa los puntos y compara la distribución **antes** y **después** del clustering."
+    "Sube tus datos, aplica **K-Means**, observa cómo el algoritmo agrupa los puntos en un espacio reducido con PCA (2D o 3D). "
+    "También puedes comparar la distribución **antes y después** del clustering."
 )
 
 # --- Cargar archivo CSV ---
-archivo = st.file_uploader("Sube un archivo CSV", type=["csv"])
+archivo = st.file_uploader("Sube un archivo CSV con tus datos", type=["csv"])
+
 if archivo is None:
     df = pd.read_csv("analisis.csv")
     st.info("Usando el archivo por defecto: **analisis.csv**")
 else:
     df = pd.read_csv(archivo)
+    st.success("Archivo cargado correctamente.")
 
+# --- Vista previa de datos ---
 st.subheader("Vista previa de los datos")
-st.dataframe(df.head(10))
+st.dataframe(df.head())
 
 # --- Selección de columnas numéricas y parámetros ---
 num_cols = df.select_dtypes(include=["number"]).columns.tolist()
@@ -35,23 +40,24 @@ y_col = st.sidebar.selectbox("Selecciona columna Y", options=num_cols, index=1)
 # --- Parámetros de K-Means ---
 st.sidebar.header("Configuración del modelo")
 k = st.sidebar.slider("Número de clústeres (k)", 2, 10, 3, 1)
-init = st.sidebar.selectbox("Selecciona init", options=["k-means++", "random"], index=0)
+init = st.sidebar.selectbox("Método de inicialización (init)", options=["k-means++", "random"], index=0)
 n_init = st.sidebar.number_input("n_init", min_value=1, value=10, step=1)
 max_iter = st.sidebar.number_input("max_iter", min_value=100, value=300, step=50)
 random_state = st.sidebar.number_input("random_state", min_value=0, value=42, step=1)
 
-visual_pca = st.sidebar.radio("Visualización de PCA", options=[2, 3], index=0)
+# --- Selección de visualización PCA ---
+visual_pca = st.sidebar.radio("Visualización PCA", options=[2, 3], index=0)
 
 # --- Preprocesamiento de datos ---
 X = df[[x_col, y_col]].copy()
 scaler = MinMaxScaler()
 X_scaled = scaler.fit_transform(X.values)
 
-# --- PCA sin clustering (para visualización) ---
+# --- PCA sin clustering (para visualización antes del clustering) ---
 pca = PCA(n_components=visual_pca)
 X_pca = pca.fit_transform(X_scaled)
 
-# --- Gráfico original sin clustering ---
+# --- Distribución original (antes de K-Means) ---
 st.subheader("Distribución original (antes de K-Means)")
 fig1, ax1 = plt.subplots(figsize=(8, 6))
 ax1.scatter(X_pca[:, 0], X_pca[:, 1], c="gray", alpha=0.7)
@@ -98,7 +104,7 @@ if elbow_button:
     ax3.plot(ks, inercias, marker="o", color="purple")
     ax3.set_xlabel("Número de clústeres")
     ax3.set_ylabel("Inercia")
-    ax3.set_title("Método del Codo")
+    ax3.set_title("Método del Codo (Elbow Method)")
     st.pyplot(fig3)
 
 # --- Descargar CSV con clústeres asignados ---
