@@ -1,4 +1,4 @@
-# app.py — K-Means con PCA y comparación (antes/después) Streamlit
+# app.py — Clustering con K-Means y PCA (Comparación antes/después) | Streamlit
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-# --- Configuración de página ---
+# --- Configuración de la página ---
 st.set_page_config(page_title="Clustering con K-Means", page_icon="🧩", layout="wide")
 st.title("Clustering Interactivo con K-Means y PCA (Comparación Antes/Después)")
 st.subheader("By Axel Mireles ITC")
@@ -20,7 +20,6 @@ st.markdown(
 
 # --- Cargar archivo CSV ---
 archivo = st.file_uploader("Sube un archivo CSV con tus datos", type=["csv"])
-
 if archivo is None:
     df = pd.read_csv("analisis.csv")
     st.info("Usando el archivo por defecto: **analisis.csv**")
@@ -28,7 +27,7 @@ else:
     df = pd.read_csv(archivo)
     st.success("Archivo cargado correctamente.")
 
-# --- Vista previa de datos ---
+# --- Vista previa de los datos ---
 st.subheader("Vista previa de los datos")
 st.dataframe(df.head())
 
